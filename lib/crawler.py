@@ -1,6 +1,6 @@
 import logging
 from selenium.webdriver.firefox.service import Service
-from selenium import webdriver
+from seleniumwire import webdriver
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +13,10 @@ class Crawler:
 
     def crawl(self):
         self.webdriver.get(self.target)
+        for req in self.webdriver.requests:
+            print(req.url)
+            if req.response:
+                print(req.response.headers)
         self.quit()
 
     def quit(self):

@@ -32,7 +32,8 @@ setup: selenium download-all
 selenium: $(VENV)
 	/bin/bash -c \
 	"source $(VENV)/bin/activate\
-	&& pip3 install selenium"
+	&& pip3 install selenium\
+	&& pip3 install selenium-wire"
 
 .PHONY: download-all
 download-all: $(GECKODRIVER)
