@@ -1,7 +1,7 @@
 # Wurlcraw
 ## Overview
 ---
-Wurlcraw, A Web URL Crawler using webdriver
+Wurlcraw, a Web URL Crawler using selenium/selenium-wire
 
 ## Setup
 ---

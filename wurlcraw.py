@@ -16,6 +16,7 @@ if __name__ == '__main__':
     parser.add_argument('target', metavar='http[s]://<HOST>[:<PORT>]', help="Target to crawl")
     parser.add_argument('--test', action="store_true", help="Test")
     parser.add_argument('-d', '--debug', action="store_true", help="Debug mode")
+    parser.add_argument('-H', '--headless', action="store_true", help="Run browser in headless mode")
     args = parser.parse_args()
 
     if args.debug:
