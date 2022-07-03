@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 def main(args):
     crawler = Crawler(args)
     crawler.crawl()
+    crawler.report()
+    crawler.quit()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Wurlcraw, web url crawler')
