@@ -41,3 +41,18 @@ Crawl the site in a casual way with random move
 
 ## Usage
 ---
+```bash
+usage: wurlcraw.py [-h] [--test] [-d] [-H] http[s]://<HOST>[:<PORT>]
+
+Wurlcraw, web url crawler
+
+positional arguments:
+  http[s]://<HOST>[:<PORT>]
+                        Target to crawl
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --test                Test
+  -d, --debug           Debug mode
+  -H, --headless        Run browser in headless mode
+```
