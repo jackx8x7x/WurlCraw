@@ -1,8 +1,23 @@
 # Wurlcraw
 ## Overview
+---
 Wurlcraw, A Web URL Crawler using webdriver
 
+## Setup
+---
+Setup a `venv` virtual environment, install `selenium` and download webdrivers.
+```bash
+$ make setup
+```
+## Run
+---
+Run the script in a virtual environment
+```bash
+$ make
+```
+
 ## Information gathering
+---
 - URLs
     - mentioned in DOM element
 	- `href` attribute in tag `a`
@@ -18,8 +33,10 @@ Wurlcraw, A Web URL Crawler using webdriver
     - We parse strings like "version" in the content we parse
 
 ## Mode
+---
 - Casual
 Crawl the site in a casual way with random move
 - Straightforward
 
 ## Usage
+---
