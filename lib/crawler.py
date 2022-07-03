@@ -66,6 +66,16 @@ class Crawler:
             hostInfo.srcs.append(path)
 
     def report(self):
+        driver = self.webdriver
+        for req in driver.requests:
+            url = urlparse(req.url)
+            netloc = url.netloc
+            path = url.path
+            if not netloc in self.hostInfos:
+                self.hostInfos[netloc] = HostInfo(netloc)
+            hostInfo = self.hostInfos[netloc]
+            hostInfo.requests.append(path)
+
         for host, info in self.hostInfos.items():
             dump = json.dumps(info.__dict__, indent=2)
             print(dump)
