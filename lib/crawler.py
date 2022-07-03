@@ -14,6 +14,8 @@ class HostInfo:
         self.hrefs = list()
         self.srcs = list()
         self.requests = list()
+        self.vhosts = list()
+        self.servers = list()
 
 class Crawler:
     def __init__(self, options):
@@ -75,6 +77,15 @@ class Crawler:
                 self.hostInfos[netloc] = HostInfo(netloc)
             hostInfo = self.hostInfos[netloc]
             hostInfo.requests.append(path)
+            
+            vhost = req.headers.get('Host')
+            if vhost:
+                hostInfo.vhosts.append(vhost)
+            resp = req.response
+            server = resp.headers.get('server')
+            if server:
+                hostInfo.servers.append(server)
+
 
         for host, info in self.hostInfos.items():
             dump = json.dumps(info.__dict__, indent=2)
