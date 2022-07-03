@@ -1,10 +1,19 @@
 import logging
 import time
+import json
+from urllib.parse import urlparse
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from seleniumwire import webdriver
 
 logger = logging.getLogger(__name__)
+
+class HostInfo:
+    def __init__(self, netloc):
+        self.netloc = netloc
+        self.hrefs = list()
+        self.srcs = list()
+        self.requests = list()
 
 class Crawler:
     def __init__(self, options):
@@ -17,46 +26,49 @@ class Crawler:
         self.target = options.target
         logger.debug(f"target: {self.target}")
 
-        self.hrefs = set()
-        self.srcs = set()
+        self.hostInfos = {}
 
     def crawl(self):
         driver = self.webdriver
         driver.get(self.target)
         time.sleep(2)
 
-        self.getUrl()
+        self.getUrlInDom()
 
-    def getUrl(self):
+    '''
+    Code get all URL contained in elements with href or src attribute
+    '''
+    def getUrlInDom(self):
         driver = self.webdriver
 
-        # Code get all element with href
         _ = '''return document.querySelectorAll('[href]')'''
         _ = driver.execute_script(_)
         hrefs = map(lambda x: x.get_attribute('href'), _)
-        self.hrefs.update(hrefs)
+        for u in hrefs:
+            url = urlparse(u)
+            netloc = url.netloc
+            path = url.path
+            if not netloc in self.hostInfos:
+                self.hostInfos[netloc] = HostInfo(netloc)
+            hostInfo = self.hostInfos[netloc]
+            hostInfo.hrefs.append(path)
 
-        # Code get all element with src
         _ = '''return document.querySelectorAll('[src]')'''
         _ = driver.execute_script(_)
         srcs = map(lambda x: x.get_attribute('src'), _)
-        self.hrefs.update(srcs)
+        for u in srcs:
+            url = urlparse(u)
+            netloc = url.netloc
+            path = url.path
+            if not netloc in self.hostInfos:
+                self.hostInfos[netloc] = HostInfo(netloc)
+            hostInfo = self.hostInfos[netloc]
+            hostInfo.srcs.append(path)
 
     def report(self):
-        driver = self.webdriver
-        for href in self.hrefs:
-            print(href)
-        for src in self.srcs:
-            print(src)
-        for req in set(driver.requests):
-            url = req.url
-            host = req.headers.get('Host', '')
-            print(url, host)
-            res = req.response
-            if res:
-                server = res.headers.get('server', '')
-                if server:
-                    print(server)
+        for host, info in self.hostInfos.items():
+            dump = json.dumps(info.__dict__, indent=2)
+            print(dump)
 
     def quit(self):
         self.webdriver.quit()
