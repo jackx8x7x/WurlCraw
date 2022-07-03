@@ -1,2 +1,5 @@
 webdrivers
 virtual-environment
+*.swp
+*.log
+__pycache__

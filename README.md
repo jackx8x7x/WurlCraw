@@ -13,7 +13,8 @@ $ make setup
 ---
 Run the script in a virtual environment
 ```bash
-$ make
+$ source ./virtual-environment/bin/activate
+(virtual-environment)$ python3 wurlcrow.py -h
 ```
 
 ## Information gathering

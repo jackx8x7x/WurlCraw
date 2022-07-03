@@ -1,11 +1,11 @@
-VENV := ./virtual-environment/
+VENV := ./virtual-environment
 SHELL := /bin/bash
 GECKODRIVER := ./webdrivers/geckodriver
 
 all: $(VENV) $(GECKODRIVER)
-	@/bin/bash -c \
-	"source $(VENV)/bin/activate\
-	&& python3 wurlcraw.py"
+	@echo "Usage:"
+	@echo "    source $(VENV)/bin/activate"
+	@echo "    && python3 wurlcraw.py -h"
 	
 
 $(VENV):
