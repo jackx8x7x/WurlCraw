@@ -29,7 +29,7 @@ $(VENV):
 $(GECKODRIVER):
 	/bin/bash -c \
 	"[ -d ./webdrivers ] || mkdir webdrivers\
-	&& wget 'https://github.com/mozilla/geckodriver/releases/download/v0.31.0/geckodriver-v0.31.0-macos.tar.gz' -O driver.tgz\
+	&& wget 'https://github.com/mozilla/geckodriver/releases/download/v0.31.0/geckodriver-v0.31.0-$(VER).tar.gz' -O driver.tgz\
 	&& tar zxvf driver.tgz\
 	&& mv geckodriver $(GECKODRIVER)\
 	&& rm driver.tgz"
