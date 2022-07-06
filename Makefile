@@ -2,6 +2,21 @@ VENV := ./virtual-environment
 SHELL := /bin/bash
 GECKODRIVER := ./webdrivers/geckodriver
 
+OS := $(shell uname | tr A-Z a-z)
+ARCH := $(shell uname -p | tr A-Z a-z)
+
+ifeq ($(OS), linux)
+VER := $(shell echo $(ARCH) | grep -q 64 && echo linux64 || echo linux32)
+endif
+
+ifeq ($(OS), darwin)
+VER := $(shell echo $(ARCH) | grep -q 86 && echo macos || echo macos-aarch64)
+endif
+
+ifndef VER
+	$(error Ver not set)
+endif
+
 all: $(VENV) $(GECKODRIVER)
 	@echo "Usage:"
 	@echo "    source $(VENV)/bin/activate"
