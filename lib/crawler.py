@@ -9,10 +9,14 @@ from urllib.parse import urlparse
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from seleniumwire import webdriver
+from selenium.webdriver.common.by import By
 
 logger = logging.getLogger(__name__)
 
-def command(do_some):
+def get_args_list(do_some):
+    '''
+    Let method get arguments as list
+    '''
     @wraps(do_some)
     def do_something(obj, args):
         argv = shlex.split(args)
@@ -31,6 +35,7 @@ class HostInfo:
 class Crawler(cmd.Cmd):
     def __init__(self, options):
         cmd.Cmd.__init__(self)
+        self.prompt = 'WurlCraw> '
         firefox_options = Options()
         if options.headless:
             firefox_options.add_argument('--headless')
@@ -44,7 +49,8 @@ class Crawler(cmd.Cmd):
 
         self.hostInfos = {}
 
-    @command
+    # Navigation relative command
+    @get_args_list
     def do_navigate(self, args):
         '''
         Navigate to the specified URL
@@ -59,18 +65,42 @@ class Crawler(cmd.Cmd):
         except:
             pass
 
+    def do_forward(self, args):
+        self.webdriver.forward()
+
+    def do_back(self, args):
+        self.webdriver.back()
+
     def do_eval(self, args):
         res = eval(args)
         print(res)
 
-    @command
+    # Data process relate
+    @get_args_list
+    def do_takeScreenshot(self, args):
+        '''
+        Navigate to the specified URL
+        '''
+        p = argparse.ArgumentParser(prog='takeScreenshot')
+        p.add_argument('path', metavar='PAHT_TO_SAVE')
+        try:
+            path = p.parse_args(args).path
+            self.webdriver.save_screenshot(path)
+        except:
+            pass
+
+    # Brower status, history and cookies information
+    @get_args_list
     def do_getCookies(self, args):
         '''
-        Dump cookies
+        Dump cookies for the current URL
         '''
-        print(self.webdriver.get_cookies())
+        cookies = self.webdriver.get_cookies()
+        for c in cookies:
+            print(c)
 
-    @command
+    # Element locating relative command
+    @get_args_list
     def do_findNodes(self, args):
         '''
         Find node with specified CSS selector
@@ -80,9 +110,8 @@ class Crawler(cmd.Cmd):
         p.add_argument('-a', '--attribute', metavar='attribute')
         try:
             options = p.parse_args(args)
-            code = "return document.querySelectorAll('{selector}')".format(
-                **options.__dict__)
-            nodes = self.webdriver.execute_script(code)
+            query = options.selector
+            nodes = self.webdriver.find_elements(By.CSS_SELECTOR, query)
             for n in nodes:
                 a = options.attribute
                 if a:
@@ -93,7 +122,7 @@ class Crawler(cmd.Cmd):
         except:
             pass
 
-    @command
+    @get_args_list
     def do_getUrlInDom(self, args):
         '''
         Code get all URL contained in elements with href or src attribute
@@ -121,7 +150,7 @@ class Crawler(cmd.Cmd):
                 else:
                     hostInfo.srcs.append(path)
 
-    @command
+    @get_args_list
     def do_getRequestsInitiated(self, args):
         '''
         Get all URL referred to in the current page
