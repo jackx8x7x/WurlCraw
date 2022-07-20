@@ -81,7 +81,7 @@ class Crawler(cmd.Cmd):
             driver = self.webdriver
             driver.get(target)
         except:
-            pass
+            p.print_help()
     
     @get_args_list
     def do_createTab(self, args):
@@ -97,7 +97,7 @@ class Crawler(cmd.Cmd):
                 self.webdriver.get(target)
             self._update_prompt()
         except:
-            pass
+            p.print_help()
 
     @get_args_list
     def do_switchTo(self, args):
@@ -115,7 +115,7 @@ class Crawler(cmd.Cmd):
                     self._switch_to(h)
                     break
         except:
-            pass
+            p.print_help()
 
     def do_forward(self, args):
         self.webdriver.forward()
@@ -123,9 +123,15 @@ class Crawler(cmd.Cmd):
     def do_back(self, args):
         self.webdriver.back()
 
+    def do_refresh(self, args):
+        self.webdriver.refresh()
+
     def do_eval(self, args):
-        res = eval(args)
-        print(res)
+        try:
+            res = eval(args)
+            print(res)
+        except Exception as e:
+            print(e)
 
     # Data process relate
     @get_args_list
@@ -138,9 +144,8 @@ class Crawler(cmd.Cmd):
         try:
             path = p.parse_args(args).path
             self.webdriver.save_screenshot(path)
-        except Exception as e:
-            print(e)
-            pass
+        except:
+            p.print_help()
 
     # Brower status, history and cookies information
     @get_args_list
@@ -185,7 +190,7 @@ class Crawler(cmd.Cmd):
                     print(n.get_attribute('innerHTML'))
 
         except:
-            pass
+            p.print_help()
 
     @get_args_list
     def do_getUrlInDom(self, args):
