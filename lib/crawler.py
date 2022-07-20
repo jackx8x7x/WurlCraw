@@ -35,7 +35,11 @@ class HostInfo:
 class Crawler(cmd.Cmd):
     def __init__(self, options):
         cmd.Cmd.__init__(self)
+
+        self.history = []
+        self.hostInfos = {}
         self.prompt = '[WurlCraw]> '
+
         firefox_options = Options()
         if options.headless:
             firefox_options.add_argument('--headless')
@@ -47,8 +51,7 @@ class Crawler(cmd.Cmd):
         if options.target:
             self.webdriver.get(options.target)
             self._update_prompt()
-
-        self.hostInfos = {}
+            self._appendHistory(options.target)
 
     def _update_prompt(self):
         title = self.webdriver.title
@@ -63,6 +66,14 @@ class Crawler(cmd.Cmd):
         except Exception as e:
             print(e)
             logger.warning(f'_switch_to to handle error {handle}')
+
+    def _appendHistory(self, url):
+        if not url in self.history:
+            if len(self.history) < 10:
+                self.history.append(url)
+            else:
+                self.history.pop(0)
+                self.history.append(url)
 
     def emptyline(self):
         pass
@@ -80,6 +91,7 @@ class Crawler(cmd.Cmd):
             target = options.target
             driver = self.webdriver
             driver.get(target)
+            self._appendHistory(target)
         except:
             p.print_help()
 
@@ -104,6 +116,8 @@ class Crawler(cmd.Cmd):
             self.webdriver.switch_to.new_window('tab')
             if target:
                 self.webdriver.get(target)
+                self._appendHistory(target)
+                
             self._update_prompt()
         except:
             p.print_help()
@@ -114,7 +128,7 @@ class Crawler(cmd.Cmd):
             return ['-t']
 
         if _match[-1] in line:
-            return None
+            return 
 
         return [m for m in _match if m.startswith(text)]
 
@@ -135,6 +149,9 @@ class Crawler(cmd.Cmd):
                     break
         except:
             p.print_help()
+
+    def complete_switchTo(self, text, line, start, end):
+        return [h for h in self.webdriver.window_handles if h.startswith(text)]
 
     def do_forward(self, args):
         self.webdriver.forward()
@@ -192,6 +209,10 @@ class Crawler(cmd.Cmd):
             title = driver.title
             print("{handle}: {title}".format(handle=w, title=title))
         driver.switch_to.window(handle)
+
+    def do_getHistory(self, args):
+        for h in self.history:
+            print(h)
 
     # Element locating relative command
     @get_args_list
