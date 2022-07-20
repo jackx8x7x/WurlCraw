@@ -64,6 +64,37 @@ class Crawler(cmd.Cmd):
             driver.get(target)
         except:
             pass
+    
+    @get_args_list
+    def do_createTab(self, args):
+        '''
+        Create a new tab and switch to it
+        '''
+        p = argparse.ArgumentParser(prog='createTab')
+        p.add_argument('-t', '--target', metavar='http(s)://<host>')
+        try:
+            target = p.parse_args(args).target
+            self.webdriver.switch_to.new_window('tab')
+            self.webdriver.get(target)
+        except:
+            pass
+
+    @get_args_list
+    def do_switchTo(self, args):
+        '''
+        Switch to specified tab or window
+        '''
+        p = argparse.ArgumentParser(prog='switchTo')
+        p.add_argument('handle', metavar='HANDLE',
+                help='handle string to match')
+        try:
+            handle = p.parse_args(args).handle
+            for h in self.webdriver.window_handles:
+                if h.startswith(handle):
+                    self.webdriver.switch_to.window(h)
+                    break
+        except:
+            pass
 
     def do_forward(self, args):
         self.webdriver.forward()
@@ -86,7 +117,8 @@ class Crawler(cmd.Cmd):
         try:
             path = p.parse_args(args).path
             self.webdriver.save_screenshot(path)
-        except:
+        except Exception as e:
+            print(e)
             pass
 
     # Brower status, history and cookies information
@@ -98,6 +130,18 @@ class Crawler(cmd.Cmd):
         cookies = self.webdriver.get_cookies()
         for c in cookies:
             print(c)
+
+    def do_getWindows(self, args):
+        '''
+        Get all windows handles and their title
+        '''
+        driver = self.webdriver
+        handle = driver.current_window_handle
+        for w in driver.window_handles:
+            driver.switch_to.window(w)
+            title = driver.title
+            print("{handle}: {title}".format(handle=w, title=title))
+        driver.switch_to.window(handle)
 
     # Element locating relative command
     @get_args_list
