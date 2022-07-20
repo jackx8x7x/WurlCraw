@@ -2,6 +2,8 @@
 ## Overview
 ---
 Wurlcraw, a Web URL Crawler using selenium/selenium-wire
+- A hobby project
+- Still under development
 
 ## Setup
 ---
@@ -9,6 +11,7 @@ Setup a `venv` virtual environment, install `selenium` and download webdrivers.
 ```bash
 $ make setup
 ```
+
 ## Run
 ---
 Run the script in a virtual environment
@@ -41,18 +44,22 @@ Crawl the site in a casual way with random move
 
 ## Usage
 ---
+- Require `selenium-wire`
 ```bash
-usage: wurlcraw.py [-h] [--test] [-d] [-H] http[s]://<HOST>[:<PORT>]
+usage: wurlcraw.py [-h] [--target http[s]://<HOST>[:<PORT>]] [--test] [-d LEVEL] [-H]
 
 Wurlcraw, web url crawler
 
-positional arguments:
-  http[s]://<HOST>[:<PORT>]
-                        Target to crawl
-
 optional arguments:
   -h, --help            show this help message and exit
+  --target http[s]://<HOST>[:<PORT>]
+                        Target to crawl
   --test                Test
-  -d, --debug           Debug mode
+  -d LEVEL, --debug LEVEL
+                        Debug level
   -H, --headless        Run browser in headless mode
+```
+- Or run `./start.sh` which will create a virtualenv and install require module automatically
+```bash
+$ ./start.sh -h
 ```
