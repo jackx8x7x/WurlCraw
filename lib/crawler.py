@@ -35,7 +35,7 @@ class HostInfo:
 class Crawler(cmd.Cmd):
     def __init__(self, options):
         cmd.Cmd.__init__(self)
-        self.prompt = 'WurlCraw> '
+        self.prompt = '[WurlCraw]> '
         firefox_options = Options()
         if options.headless:
             firefox_options.add_argument('--headless')
@@ -46,8 +46,26 @@ class Crawler(cmd.Cmd):
 
         if options.target:
             self.webdriver.get(options.target)
+            self._update_prompt()
 
         self.hostInfos = {}
+
+    def _update_prompt(self):
+        title = self.webdriver.title
+        if len(title) > 10:
+            title = title[:12].ljust(15, '.')
+        self.prompt = f'[WurlCraw][{title}]> '
+
+    def _switch_to(self, handle):
+        try:
+            self.webdriver.switch_to.window(handle)
+            self._update_prompt()
+        except Exception as e:
+            print(e)
+            logger.warning(f'_switch_to to handle error {handle}')
+
+    def emptyline(self):
+        pass
 
     # Navigation relative command
     @get_args_list
@@ -75,7 +93,9 @@ class Crawler(cmd.Cmd):
         try:
             target = p.parse_args(args).target
             self.webdriver.switch_to.new_window('tab')
-            self.webdriver.get(target)
+            if target:
+                self.webdriver.get(target)
+            self._update_prompt()
         except:
             pass
 
@@ -84,14 +104,15 @@ class Crawler(cmd.Cmd):
         '''
         Switch to specified tab or window
         '''
+        driver = self.webdriver
         p = argparse.ArgumentParser(prog='switchTo')
         p.add_argument('handle', metavar='HANDLE',
                 help='handle string to match')
         try:
             handle = p.parse_args(args).handle
-            for h in self.webdriver.window_handles:
+            for h in driver.window_handles:
                 if h.startswith(handle):
-                    self.webdriver.switch_to.window(h)
+                    self._switch_to(h)
                     break
         except:
             pass
