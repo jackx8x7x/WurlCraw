@@ -82,6 +82,15 @@ class Crawler(cmd.Cmd):
             driver.get(target)
         except:
             p.print_help()
+
+    def complete_navigate(self, text, line, start, end):
+        _match = ['http', 'https']
+
+        if _match[-1] in line:
+            return None
+
+        return [m for m in _match if m.startswith(text)]
+
     
     @get_args_list
     def do_createTab(self, args):
@@ -98,6 +107,16 @@ class Crawler(cmd.Cmd):
             self._update_prompt()
         except:
             p.print_help()
+
+    def complete_createTab(self, text, line, start, end):
+        _match = ['http', 'https']
+        if not '-t' in line:
+            return ['-t']
+
+        if _match[-1] in line:
+            return None
+
+        return [m for m in _match if m.startswith(text)]
 
     @get_args_list
     def do_switchTo(self, args):
@@ -146,6 +165,11 @@ class Crawler(cmd.Cmd):
             self.webdriver.save_screenshot(path)
         except:
             p.print_help()
+
+    def complete_takeScreenshot(self, text, line, start, end):
+        import os
+        li = os.listdir('.')
+        return [l for l in li if l.startswith(text)]
 
     # Brower status, history and cookies information
     @get_args_list
