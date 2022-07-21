@@ -15,10 +15,12 @@ def main(args):
 
     import atexit
     atexit.register(clean_on_exit, crawler)
+
     try:
         crawler.cmdloop()
     except KeyboardInterrupt:
         crawler.quit()
+        sys.exit(0)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Wurlcraw, web url crawler')
@@ -31,9 +33,11 @@ if __name__ == '__main__':
             help="Run browser in headless mode")
 
     args = parser.parse_args()
+    level = logging.WARNING
     if args.debug == 'DEBUG':
-        logging.basicConfig(level=logging.DEBUG)
+        level = logging.DENUG
     elif args.debug == 'INFO':
-        logging.basicConfig(level=logging.INFO)
+        level = logging.INFO
+    logging.basicConfig(level=level)
 
     main(args)

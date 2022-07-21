@@ -36,6 +36,7 @@ class Crawler(cmd.Cmd):
     def __init__(self, options):
         cmd.Cmd.__init__(self)
 
+        self.last_selected = []
         self.history = []
         self.hostInfos = {}
         self.prompt = '[WurlCraw]> '
@@ -188,15 +189,49 @@ class Crawler(cmd.Cmd):
         li = os.listdir('.')
         return [l for l in li if l.startswith(text)]
 
+    def do_clean(self):
+        '''
+        Clean selenium-wire cache, i.e, driver.requests
+        '''
+        del self.webdriver.requests
+
     # Brower status, history and cookies information
     @get_args_list
     def do_getCookies(self, args):
         '''
         Dump cookies for the current URL
         '''
+        p = argparse.ArgumentParser(prog='getCookies')
+        p.add_argument('--domain', metavar='DOMAIN',
+                help='Pattern to match cookie domain')
+
         cookies = self.webdriver.get_cookies()
         for c in cookies:
             print(c)
+
+    @get_args_list
+    def do_setCookies(self, args):
+        '''
+        Dump cookies for the current URL
+        '''
+        p = argparse.ArgumentParser(prog='setCookies')
+        p.add_argument('name', metavar='NAME',
+                help='Cookie name')
+        p.add_argument('value', metavar='VALUE',
+                help='Cookie value')
+        p.add_argument('-d', '--domain', metavar='DOMAIN',
+                help='Cookie domain')
+        p.add_argument('-p', '--path', metavar='PATH',
+                help='Cookie path')
+        p.add_argument('-s', '--secure', action='store_true',
+                default=True, help='Secure flag')
+        p.add_argument('--httpOnly', action='store_true',
+                default=True, help='httpOnly flag')
+        try:
+            options = p.parse_args(args)
+            self.webdriver.add_cookie(options.__dict__)
+        except:
+            pass
 
     def do_getWindows(self, args):
         '''
@@ -214,25 +249,27 @@ class Crawler(cmd.Cmd):
         for h in self.history:
             print(h)
 
-    # Element locating relative command
+    # Element locating and interactive command
     @get_args_list
-    def do_findNodes(self, args):
+    def do_queryNodes(self, args):
         '''
         Find node with specified CSS selector
         '''
-        p = argparse.ArgumentParser(prog='findNodes', exit_on_error=False)
+        p = argparse.ArgumentParser(prog='queryNodes', exit_on_error=False)
         p.add_argument('selector', metavar='CSS_selector')
         p.add_argument('-a', '--attribute', metavar='attribute')
         try:
             options = p.parse_args(args)
             query = options.selector
             nodes = self.webdriver.find_elements(By.CSS_SELECTOR, query)
-            for n in nodes:
+            self.last_selected = nodes
+            for i in range(len(nodes)):
+                n = nodes[i]
                 a = options.attribute
                 if a:
-                    print(n.get_attribute(a))
+                    print(i, n.get_attribute(a))
                 else:
-                    print(n.get_attribute('innerHTML'))
+                    print(i, n.get_attribute('outerHTML'))
 
         except:
             p.print_help()
@@ -290,6 +327,28 @@ class Crawler(cmd.Cmd):
         for host, info in self.hostInfos.items():
             dump = json.dumps(info.__dict__, indent=2)
             print(dump)
+
+    @get_args_list
+    def do_fillForm(self, args):
+        pass
+
+    @get_args_list
+    def do_click(self, args):
+        '''
+        Click the first CSS_SELECTOR matching element
+        '''
+        p = argparse.ArgumentParser(prog='click')
+        p.add_argument('selector', metavar='CSS_SELECTOR')
+        try:
+            query = p.parse_args(args).selector
+            if query.isdigit() and 0 <= int(query) < len(self.last_selected):
+                node = self.last_selected[int(query)]
+            else:
+                node = self.webdriver.find_element(By.CSS_SELECTOR, query)
+            if node:
+                node.click()
+        except:
+            pass
 
     def quit(self):
         self.webdriver.quit()
