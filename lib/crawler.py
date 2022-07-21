@@ -258,14 +258,28 @@ class Crawler(cmd.Cmd):
         p = argparse.ArgumentParser(prog='queryNodes', exit_on_error=False)
         p.add_argument('selector', metavar='CSS_selector')
         p.add_argument('-a', '--attribute', metavar='attribute')
+        p.add_argument('-o', '--output', metavar='OUTPUT',
+                help='file to append output')
         try:
             options = p.parse_args(args)
             query = options.selector
-            nodes = self.webdriver.find_elements(By.CSS_SELECTOR, query)
+            nodes = self.webdriver.find_elements(By.CSS_SELECTOR,
+                    query)
             self.last_selected = nodes
+            a = options.attribute
+            if options.output:
+                with open(options.output, 'a') as output:
+                    output.write(f"# queryNodes {query}")
+                    for i in range(len(nodes)):
+                        n = nodes[i]
+                        if a:
+                            l = f"{n.get_attribute(a)}\n"
+                        else:
+                            l = f"{n.get_attribute('outerHTML')}\n"
+                        output.write(l)
+
             for i in range(len(nodes)):
                 n = nodes[i]
-                a = options.attribute
                 if a:
                     print(i, n.get_attribute(a))
                 else:
