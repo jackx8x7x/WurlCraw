@@ -210,11 +210,11 @@ class Crawler(cmd.Cmd):
             print(c)
 
     @get_args_list
-    def do_setCookies(self, args):
+    def do_addCookies(self, args):
         '''
         Dump cookies for the current URL
         '''
-        p = argparse.ArgumentParser(prog='setCookies')
+        p = argparse.ArgumentParser(prog='addCookies')
         p.add_argument('name', metavar='NAME',
                 help='Cookie name')
         p.add_argument('value', metavar='VALUE',
@@ -231,7 +231,7 @@ class Crawler(cmd.Cmd):
             options = p.parse_args(args)
             self.webdriver.add_cookie(options.__dict__)
         except:
-            pass
+            p.print_help()
 
     def do_getWindows(self, args):
         '''
@@ -260,19 +260,22 @@ class Crawler(cmd.Cmd):
         p.add_argument('-a', '--attribute', metavar='attribute')
         p.add_argument('-o', '--output', metavar='OUTPUT',
                 help='file to append output')
+        p.add_argument('-t', '--text', action='store_true',
+                help='Get element text only')
         try:
             options = p.parse_args(args)
             query = options.selector
             nodes = self.webdriver.find_elements(By.CSS_SELECTOR,
                     query)
             self.last_selected = nodes
-            a = options.attribute
             if options.output:
                 with open(options.output, 'a') as output:
                     output.write(f"# queryNodes {query}")
                     for i in range(len(nodes)):
                         n = nodes[i]
-                        if a:
+                        if options.text:
+                            l = f"{n.text}\n"
+                        elif options.attribute:
                             l = f"{n.get_attribute(a)}\n"
                         else:
                             l = f"{n.get_attribute('outerHTML')}\n"
@@ -280,7 +283,9 @@ class Crawler(cmd.Cmd):
 
             for i in range(len(nodes)):
                 n = nodes[i]
-                if a:
+                if options.text:
+                    l = print(i, n.text)
+                elif options.attribute:
                     print(i, n.get_attribute(a))
                 else:
                     print(i, n.get_attribute('outerHTML'))
